@@ -135,37 +135,37 @@ params:
       description: How long to wait after doing a rediscovery, before doing it again
     - name: authorization_endpoint
       required: false
-      default: (discovered uri)
+      default: "(discovered uri)"
       datatype: string
       description: The authorization endpoint
     - name: token_endpoint
       required: false
-      default: (discovered uri)
+      default: "(discovered uri)"
       datatype: string
       description: The token endpoint
     - name: introspection_endpoint
       required: false
-      default: (discovered uri)
+      default: "(discovered uri)"
       datatype: string
       description: The introspection endpoint
     - name: introspection_endpoint
       required: false
-      default: (discovered uri)
+      default: "(discovered uri)"
       datatype: string
       description: The introspection endpoint
     - name: userinfo_endpoint
       required: false
-      default: (discovered uri)
+      default: "(discovered uri)"
       datatype: string
       description: The user info endpoint
     - name: end_session_endpoint
       required: false
-      default: (discovered uri)
+      default: "(discovered uri)"
       datatype: string
       description: The end session endpoint
     - name: token_exchange_endpoint
       required: false
-      default: (discovered uri)
+      default: "(discovered uri)"
       datatype: string
       description: The token exchange endpoint
     - name: client_id
@@ -180,7 +180,7 @@ params:
       description: The client secret for the plugin
     - name: client_auth
       required: false
-      default: (discovered or `client_secret_basic`)
+      default: "(discovered or `client_secret_basic`)"
       datatype: array of string elements
       description: |
         The authentication method used by the plugin when calling the endpoints:
@@ -191,12 +191,12 @@ params:
         - `none`: do not authenticate
     - name: client_jwk
       required: false
-      default: (plugin managed)
+      default: "(plugin managed)"
       datatype: array of records
       description: The JWK used for `private_key_jwt` authentication.
     - name: client_alg
       required: false
-      default: (for `client_secret_jwt`: `HS256`, for `private_key_jwt`: `RS256`)
+      default: "(for `client_secret_jwt`: `HS256`, for `private_key_jwt`: `RS256`)"
       datatype: array of string elements
       description: | 
         The algorithm to use for `client_secret_jwt` or `private_key_jwt` authentication:
@@ -219,17 +219,17 @@ params:
       description: The client to use for this request (selection is made with a request parameter)
     - name: token_endpoint_auth_method
       required: false
-      default: (see `client_auth`)
+      default: "(see `client_auth`)"
       datatype: string
       description: The token endpoint authentication method
     - name: introspection_endpoint_auth_method
       required: false
-      default: (see `client_auth`)
+      default: "(see `client_auth`)"
       datatype: string
       description: The introspection endpoint authentication method
     - name: revocation_endpoint_auth_method
       required: false
-      default: (see `client_auth`)
+      default: "(see `client_auth`)"
       datatype: string
       description: The revocation endpoint authentication method
     - name: response_mode
@@ -255,7 +255,7 @@ params:
       datatype: array of string elements
       description: The audience passed to authorization endpoint
     - name: redirect_uri
-      default: (request uri) 
+      default: "(request uri)" 
       datatype: array of string elements
       description: The redirect uri passed to authorization and token endpoints
       
