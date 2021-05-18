@@ -255,8 +255,19 @@ params:
       datatype: array of string elements
       description: The audience passed to authorization endpoint
     - name: redirect_uri
+      required: false
       default: "(request uri)" 
       datatype: array of string elements
       description: The redirect uri passed to authorization and token endpoints
-      
+    - name: discovery_headers_names
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra header names passed to discovery endpoint
+    - name: discovery_headers_values
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra header values passed to discovery endpoint  
+           
 ---
