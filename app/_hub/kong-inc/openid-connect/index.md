@@ -97,7 +97,8 @@ params:
   config:
     - name: auth_methods
       required: false
-      default: '["`password`", "`client_credentials`", "`authorization_code`", "`bearer`", "`introspection`", "`userinfo`", "`kong_oauth2`", "`refresh_token`", "`session`"]'
+      default: |
+        ["`password`", "`client_credentials`", "`authorization_code`", "`bearer`", "`introspection`", "`userinfo`", "`kong_oauth2`", "`refresh_token`", "`session`"]
       datatype: array of string elements
       description: |
         Types of credentials/grants to enable (enable only those that you want to use):
@@ -238,12 +239,14 @@ params:
       description: The response mode passed to authorization endpoint
     - name: response_type
       required: false
-      default: '["`code`"]'
+      default: |
+        ["`code`"]
       datatype: array of string elements
       description: The response type passed to authorization endpoint
     - name scopes
       required: false
-      default: '["`openid`"]'
+      default: | 
+        ["`openid`"]
       datatype: array of string elements
       description: The scopes passed to authorization and token endpoints
     - name audience
