@@ -387,7 +387,7 @@ params:
       default: 
       datatype: array of string elements
       description: Extra query arguments passed from the client to the user info endpoint
-    - group: Input Parameter Types and Names
+    - group: Parameter Types and Names
     - name: bearer_token_param_type
       required: false
       default: [ "header", "query", "body" ]
@@ -579,5 +579,27 @@ params:
       datatype: boolean
       description: Verify plugin configuration against discovery?
     - group: Upstream and Downstream Headers
+    - name: upstream_headers_claims
+      required: false
+      default: 
+      datatype: array of string elements
+      description: The upstream header claims
+    - name: upstream_headers_names
+      required: false
+      default: 
+      datatype: array of string elements
+      description: The upstream header names for the claim values  
+    - name: downstream_headers_claims
+      required: false
+      default: 
+      datatype: array of string elements
+      description: The downstream header claims
+    - name: downstream_headers_names
+      required: false
+      default: 
+      datatype: array of string elements
+      description: The downstream header names for the claim values  
+
+
 
 ---
