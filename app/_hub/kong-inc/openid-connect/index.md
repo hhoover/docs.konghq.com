@@ -99,6 +99,7 @@ params:
     - name: auth_methods
       required: false
       default: [ "password", "client_credentials", "authorization_code", "bearer", "introspection", "userinfo", "kong_oauth2", "refresh_token", "session" ]
+      value_in_examples: [ "authorization_code", "session" ]
       datatype: array of string elements
       description: |
         Types of credentials/grants to enable (enable only those that you want to use):
@@ -122,7 +123,7 @@ params:
     - name: issuer
       required: true
       default:
-      value_in_examples: <discovery-uri>
+      value_in_examples: <discovery_uri>
       datatype: string
       description: Discovery endpoint (or just the issuer identifier)
     - name: extra_jwks_uris
@@ -174,11 +175,13 @@ params:
     - group: Endpoint Authentication
     - name: client_id
       required: false
+      value_in_examples: [ "<client_id>" ]
       default: 
       datatype: array of string elements
       description: The client id for the plugin
     - name: client_secret
       required: false
+      value_in_examples: [ "<client_secret>" ]
       default: 
       datatype: array of string elements
       description: The client secret for the plugin
@@ -197,7 +200,7 @@ params:
       required: false
       default: "(plugin managed)"
       datatype: array of records
-      description: The JWK used for `private_key_jwt` authentication.
+      description: The JWK used for the `private_key_jwt` authentication
     - name: client_alg
       required: false
       default: '(client_secret_jwt: "HS256", private_key_jwt: "RS256")'
@@ -242,6 +245,7 @@ params:
       required: false
       default: '"query"'
       datatype: string
+      value_in_examples: form_post
       description: |
         The response mode passed to the authorization endpoint:
         - `query`: Instructs the identity provider to pass parameters in query string
@@ -249,12 +253,12 @@ params:
         - `fragment`: Instructs the identity provider to pass parameters in uri fragment (rarely useful as the plugin itself cannot read it)
     - name: response_type
       required: false
-      default: ["code"]
+      default: [ "code" ]
       datatype: array of string elements
       description: The response type passed to the authorization endpoint
     - name: scopes
       required: false
-      default: ["openid"]
+      default: [ "openid" ]
       datatype: array of string elements
       description: The scopes passed to the authorization and token endpoints
     - name: audience
