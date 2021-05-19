@@ -20,19 +20,18 @@ description: |
   - Client credentials
   - Session cookies
 
-  The plugin has been tested with several OpenID Connect capable providers, such as:
+  The plugin has been tested with several OpenID Connect providers:
 
   - [Auth0][auth0]
   - [Amazon AWS Cognito][cognito]
   - [Connect2id][connect2id]
+  - [Curity][curity]
   - [Dex][dex]
   - [Gluu][gluu]
   - [Google][google]
   - [IdentityServer4][identityserver4]
   - [Keycloak][keycloak]
-  - [Microsoft Azure Active Directory v1][azurev1]
-  - [Microsoft Azure Active Directory v2][azurev2]
-  - Microsoft Live Connect
+  - [Microsoft Azure Active Directory][azure], and [Active Directory Federation Services][adfs]
   - [Okta][okta]
   - [OneLogin][onelogin]
   - [OpenAM][openam]
@@ -41,30 +40,31 @@ description: |
   - [Salesforce][salesforce]
   - [Yahoo!][yahoo]
 
-  As long as your provider supports OpenID Connect standards, the plugin should
-  work, even if it is not specifically tested against it. Let Kong know if you
-  want your provider to be tested and added to the list.
+  As long as your provider supports OpenID Connect, OAuth or JWT standards,
+  the plugin should work, even if it is not specifically tested against it.
+  Let Kong know if you want your provider to be tested and added to the list.
 
   [connect]: http://openid.net/specs/openid-connect-core-1_0.html
   [oauth2]: https://tools.ietf.org/html/rfc6749
   [jwt]: https://tools.ietf.org/html/rfc7519
   [jws]: https://tools.ietf.org/html/rfc7515
-  [auth0]: https://auth0.com/docs/protocols/oidc
+  [auth0]: https://auth0.com/docs/protocols/openid-connect-protocol
   [cognito]: https://aws.amazon.com/cognito/
   [connect2id]: https://connect2id.com/products/server
-  [dex]: https://github.com/coreos/dex/blob/master/Documentation/openid-connect.md
+  [curity]: https://curity.io/resources/learn/openid-connect-overview/
+  [dex]: https://dexidp.io/docs/openid-connect/
   [gluu]: https://gluu.org/docs/ce/api-guide/openid-connect-api/
-  [google]: https://developers.google.com/identity/protocols/OpenIDConnect
+  [google]: https://developers.google.com/identity/protocols/oauth2/openid-connect
   [identityserver4]: https://identityserver4.readthedocs.io/
   [keycloak]: http://www.keycloak.org/documentation.html
-  [azurev1]: https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-openid-connect-code
-  [azurev2]: https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols-oidc
+  [azure]: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
+  [adfs]: https://docs.microsoft.com/en-us/windows-server/identity/ad-fs/development/ad-fs-openid-connect-oauth-concepts
   [okta]: https://developer.okta.com/docs/api/resources/oidc.html
   [onelogin]: https://developers.onelogin.com/openid-connect
   [openam]: https://backstage.forgerock.com/docs/openam/13.5/admin-guide/#chap-openid-connect
-  [paypal]: https://developer.paypal.com/docs/integration/direct/identity/log-in-with-paypal/
+  [paypal]: https://developer.paypal.com/docs/log-in-with-paypal/integrate/
   [pingfederate]: https://documentation.pingidentity.com/pingfederate/
-  [salesforce]: https://developer.salesforce.com/page/Inside_OpenID_Connect_on_Force.com
+  [salesforce]: https://help.salesforce.com/articleView?id=sf.sso_provider_openid_connect.htm&type=5
   [yahoo]: https://developer.yahoo.com/oauth2/guide/openid_connect/
 
   Once applied, any user with a valid credential can access the Service.
@@ -92,13 +92,22 @@ params:
   service_id: true
   route_id: true
   consumer_id: false
-  protocols: ["http", "https"]
+  protocols: ["http", "https", "grpc (depends on grant)", "grpcs (depends on grant)"]
   dbless_compatible: yes
   config:
     - name: auth_methods
       required: false
-      default: |
-        ["`password`", "`client_credentials`", "`authorization_code`", "`bearer`", "`introspection`", "`userinfo`", "`kong_oauth2`", "`refresh_token`", "`session`"]
+      default: [
+            "password",
+            "client_credentials",
+            "authorization_code",
+            "bearer",
+            "introspection",
+            "userinfo",
+            "kong_oauth2",
+            "refresh_token",
+            "session"
+        ]
       datatype: array of string elements
       description: |
         Types of credentials/grants to enable (enable only those that you want to use):
@@ -117,10 +126,11 @@ params:
       datatype: string
       description: |
         Let unauthenticated requests to pass, or skip the plugin if other authentication plugin
-        has already authenticated the request by setting the value to anonymous Consumer id.
+        has already authenticated the request by setting the value to anonymous Consumer.
     - name: issuer
       required: true
       default:
+      value_in_examples: <discovery-uri>
       datatype: string
       description: Discovery endpoint (or just the issuer identifier)
     - name: extra_jwks_uris
@@ -180,7 +190,7 @@ params:
       description: The client secret for the plugin
     - name: client_auth
       required: false
-      default: "(discovered or `client_secret_basic`)"
+      default: '(discovered or "client_secret_basic")'
       datatype: array of string elements
       description: |
         The authentication method used by the plugin when calling the endpoints:
@@ -196,10 +206,10 @@ params:
       description: The JWK used for `private_key_jwt` authentication.
     - name: client_alg
       required: false
-      default: "(for `client_secret_jwt`: `HS256`, for `private_key_jwt`: `RS256`)"
+      default: '(client_secret_jwt: "HS256", private_key_jwt: "RS256")'
       datatype: array of string elements
       description: | 
-        The algorithm to use for `client_secret_jwt` or `private_key_jwt` authentication:
+        The algorithm to use for `client_secret_jwt` (only `HS*`) or `private_key_jwt` authentication:
         - `HS256`: HMAC using SHA-256
         - `HS384`: HMAC using SHA-384
         - `HS512`: HMAC using SHA-512
@@ -219,55 +229,249 @@ params:
       description: The client to use for this request (selection is made with a request parameter)
     - name: token_endpoint_auth_method
       required: false
-      default: "(see `client_auth`)"
+      default: "(see: client_auth)"
       datatype: string
       description: The token endpoint authentication method
     - name: introspection_endpoint_auth_method
       required: false
-      default: "(see `client_auth`)"
+      default: "(see: client_auth)"
       datatype: string
       description: The introspection endpoint authentication method
     - name: revocation_endpoint_auth_method
       required: false
-      default: "(see `client_auth`)"
+      default: "(see: client_auth)"
       datatype: string
       description: The revocation endpoint authentication method
     - name: response_mode
       required: false
-      default: "`query`"
+      default: '"query"'
       datatype: string
-      description: The response mode passed to authorization endpoint
+      description: |
+        The response mode passed to the authorization endpoint:
+        - `query`: Instructs the identity provider to pass parameters in query string
+        - `form_post`: Instructs the identity provider to pass parameters in request body
+        - `fragment`: Instructs the identity provider to pass parameters in uri fragment (rarely useful as the plugin itself cannot read it)
     - name: response_type
       required: false
-      default: |
-        ["`code`"]
+      default: ["code"]
       datatype: array of string elements
-      description: The response type passed to authorization endpoint
-    - name scopes
+      description: The response type passed to the authorization endpoint
+    - name: scopes
       required: false
-      default: | 
-        ["`openid`"]
+      default: ["openid"]
       datatype: array of string elements
-      description: The scopes passed to authorization and token endpoints
-    - name audience
+      description: The scopes passed to the authorization and token endpoints
+    - name: audience
       required: false
       default: 
       datatype: array of string elements
-      description: The audience passed to authorization endpoint
+      description: The audience passed to the authorization endpoint
     - name: redirect_uri
       required: false
       default: "(request uri)" 
       datatype: array of string elements
-      description: The redirect uri passed to authorization and token endpoints
+      description: The redirect uri passed to the authorization and token endpoints
     - name: discovery_headers_names
       required: false
       default: 
       datatype: array of string elements
-      description: Extra header names passed to discovery endpoint
+      description: Extra header names passed to the discovery endpoint
     - name: discovery_headers_values
       required: false
       default: 
       datatype: array of string elements
-      description: Extra header values passed to discovery endpoint  
+      description: Extra header values passed to the discovery endpoint  
+    - name: authorization_query_args_names
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra query argument names passed to the authorization endpoint
+    - name: authorization_query_args_values
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra query argument values passed to the authorization endpoint 
+    - name: authorization_query_args_client
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra query arguments passed from the client to the authorization endpoint
+    - name: token_headers_names
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra header names passed to the token endpoint
+    - name: token_headers_values
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra header values passed to the token endpoint  
+    - name: token_headers_client
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra headers passed from the client to the token endpoint
+    - name: token_post_args_names
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra post argument names passed to the token endpoint
+    - name: token_post_args_values
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra post argument values passed to the token endpoint
+    - name: token_post_args_client
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra post arguments passed from the client to the token endpoint
+    - name: introspection_hint  
+      required: false
+      default: '"access_token"'
+      datatype: string
+      description: Introspection hint parameter value passed to the introspection endpoint
+    - name: introspection_headers_names
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra header names passed to the introspection endpoint
+    - name: introspection_headers_values
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra header values passed to the introspection endpoint  
+    - name: introspection_headers_client
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra headers passed from the client to the introspection endpoint
+    - name: introspection_post_args_names
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra post argument names passed to the introspection endpoint
+    - name: introspection_post_args_values
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra post argument values passed to the introspection endpoint
+    - name: introspection_post_args_client
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra post arguments passed from the client to the introspection endpoint      
+    - name: userinfo_headers_names
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra header names passed to the user info endpoint
+    - name: userinfo_headers_values
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra header values passed to the user info endpoint  
+    - name: userinfo_headers_client
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra headers passed from the client to the user info endpoint
+    - name: userinfo_query_args_names
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra query argument names passed to the user info endpoint
+    - name: userinfo_query_args_values
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra query argument values passed to the user info endpoint
+    - name: userinfo_query_args_client
+      required: false
+      default: 
+      datatype: array of string elements
+      description: Extra query arguments passed from the client to the user info endpoint      
+    - name: bearer_token_param_type
+      required: false
+      default: [ "header", "query", "body" ]
+      datatype: array of string elements
+      description: |
+        Where to search the bearer token:
+        - `header`: search from the headers
+        - `query`: search from the query string
+        - `body`: search from the body
+        - `cookie`: search from the cookies
+    - name: bearer_token_cookie_name
+      required: false
+      default: 
+      datatype: string
+      description: The cookie name in which the bearer token is passed
+    - name: client_credentials_param_type
+      required: false
+      default: [ "header", "query", "body" ]
+      datatype: array of string elements
+      description: |
+        Where to search the client credentials:
+        - `header`: search from the headers
+        - `query`: search from the query string
+        - `body`: search from the body
+    - name: password_param_type
+      required: false
+      default: [ "header", "query", "body" ]
+      datatype: array of string elements
+      description: |
+        Where to search the username and password
+        - `header`: search from the headers
+        - `query`: search from the query string
+        - `body`: search from the body
+    - name: id_token_param_type
+      required: false
+      default: [ "header", "query", "body" ]
+      datatype: array of string elements
+      description: |
+        Where to search the id token
+        - `header`: search from the headers
+        - `query`: search from the query string
+        - `body`: search from the body
+    - name: id_token_param_name
+      required: false
+      default: 
+      datatype: string
+      description: The name of the parameter used to pass the id token
+    - name: refresh_token_param_type
+      required: false
+      default: [ "header", "query", "body" ]
+      datatype: array of string elements
+      description: |
+        Where to search the refresh token
+        - `header`: search from the headers
+        - `query`: search from the query string
+        - `body`: search from the body
+    - name: refresh_token_param_name
+      required: false
+      default: 
+      datatype: string
+      description: The name of the parameter used to pass the refresh token
+    - name: preserve_query_args
+      required: false
+      default: false
+      datatype: boolean
+      description: Preserve original query arguments over the authorization code flow redirections
+    - name: run_on_preflight
+      required: false
+      default: true
+      datatype: boolean
+      description: Whether to run this plugin on pre-flight (`OPTIONS`) requests?
+      
+
+      
+
+
+
+
+
+
+    
+
            
 ---
