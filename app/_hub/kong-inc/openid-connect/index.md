@@ -31,7 +31,7 @@ description: |
   - [Google][google]
   - [IdentityServer4][identityserver4]
   - [Keycloak][keycloak]
-  - [Microsoft Azure Active Directory][azure], [Active Directory Federation Services][adfs], and Live Connect
+  - [Microsoft Azure Active Directory][azure], [Active Directory Federation Services][adfs], and [Live Connect][liveconnect]
   - [Okta][okta]
   - [OneLogin][onelogin]
   - [OpenAM][openam]
@@ -60,6 +60,7 @@ description: |
   [keycloak]: http://www.keycloak.org/documentation.html
   [azure]: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
   [adfs]: https://docs.microsoft.com/en-us/windows-server/identity/ad-fs/development/ad-fs-openid-connect-oauth-concepts
+  [liveconnect]: https://docs.microsoft.com/en-us/advertising/guides/authentication-oauth-live-connect
   [okta]: https://developer.okta.com/docs/api/resources/oidc.html
   [onelogin]: https://developers.onelogin.com/openid-connect
   [openam]: https://backstage.forgerock.com/docs/openam/13.5/admin-guide/#chap-openid-connect
