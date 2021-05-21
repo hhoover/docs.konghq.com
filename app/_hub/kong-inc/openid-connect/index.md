@@ -92,7 +92,7 @@ params:
   service_id: true
   route_id: true
   consumer_id: false
-  protocols: [ "http", "https", "grpc (depends on grant)", "grpcs (depends on grant)" ]
+  protocols: [ "http", "https", "grpc (depends on the grant)", "grpcs (depends on the grant)" ]
   dbless_compatible: yes
   config:
     - group: Authentication Grants
@@ -540,7 +540,12 @@ params:
       required: false
       default: true
       datatype: boolean
-      description: Verify tokens for standard claims?          
+      description: Verify tokens for standard claims?
+    - name: leeway
+      required: false
+      default: 0 
+      datatype: integer
+      description: Allow some leeway on the ttl / expiry verification      
     - name: domains
       required: false
       default: 
@@ -944,7 +949,7 @@ params:
       default: (with database, or traditional mode, the value is auto-generated and stored along the issuer discovery information in the database)
       datatype: string
       value_in_examples: <session-secret>
-      description: Session secret
+      description: The session secret
     - name: session_strategy
       required: false
       default: '"default"'
@@ -969,20 +974,100 @@ params:
         The session storage for session data:
         - `cookie`: stores session data with the session cookie (the session cannot be invalidated or revoked without changing session secret, but is stateless, and doesn't require a database)
         - `memcache`: stores session data in memcached
-        - `redis`: stores session data in Redis          
-    - group: Session Settings for Memcached
-    - group: Session Settings for Redis
-    - group: Miscellaneous      
-    - name: leeway
-      required: false
-      default: 0 
-      datatype: integer
-      description: Allow some leeway on the ttl / expiry verification
+        - `redis`: stores session data in Redis
     - name: reverify
       required: false
       default: false
       datatype: boolean
-      description: Whether to verify tokens stored in the session?
+      description: Whether to always verify tokens stored in the session?                  
+    - group: Session Settings for Memcached
+    - name: session_memcache_prefix
+      required: false
+      default: '"sessions"'
+      datatype: string
+      description: The memcached session key prefix
+    - name: session_memcache_socket
+      required: false
+      default: 
+      datatype: string
+      description: The memcached unix socket path
+    - name: session_memcache_host
+      required: false
+      default: '"127.0.0.1"'
+      datatype: string
+      description: The memcached host
+    - name: session_memcache_port
+      required: false
+      default: 11211
+      datatype: integer
+      description: The memcached port
+    - group: Session Settings for Redis
+    - name: session_redis_prefix
+      required: false
+      default: '"sessions"'
+      datatype: string
+      description: The Redis session key prefix
+    - name: session_redis_socket
+      required: false
+      default: 
+      datatype: string
+      description: The Redis unix socket path
+    - name: session_redis_host
+      required: false
+      default: '"127.0.0.1"'
+      datatype: string
+      description: The Redis host
+    - name: session_redis_port
+      required: false
+      default: 6379
+      datatype: integer
+      description: The Redis port
+    - name: session_redis_auth
+      required: false
+      default: (from kong)
+      datatype: string
+      description: The Redis password
+    - name: session_redis_connect_timeout
+      required: false
+      default: (from kong)
+      datatype: integer
+      description: The Redis connection timeout in milliseconds
+    - name: session_redis_read_timeout
+      required: false
+      default: (from kong)
+      datatype: integer
+      description: The Redis read timeout in milliseconds
+    - name: session_redis_send_timeout
+      required: false
+      default: (from kong)
+      datatype: integer
+      description: The Redis send timeout in milliseconds
+    - name: session_redis_ssl
+      required: false
+      default: false
+      datatype: boolean
+      description: Use SSL/TLS for Redis connection
+    - name: session_redis_ssl_verify
+      required: false
+      default: false
+      datatype: boolean
+      description: Verify Redis server certificate?
+    - name: session_redis_server_name
+      required: false
+      default: 
+      datatype: string
+      description: The SNI used for connecting the Redis server
+    - name: session_redis_cluster_nodes
+      required: false
+      default: 
+      datatype: array of host records
+      description: The Redis cluster nodes
+    - name: session_redis_cluster_maxredirections
+      required: false
+      default: 
+      datatype: integer
+      description: The Redis cluster maximum redirects
+    - group: Miscellaneous      
     - name: refresh_tokens
       required: false
       default: true
@@ -997,8 +1082,5 @@ params:
       required: false
       default: false
       datatype: boolean
-      description: Preserve original query arguments over the authorization code flow redirections
-
-
-
+      description: Preserve original query arguments over the authorization code flow redirections      
 ---
