@@ -488,6 +488,26 @@ params:
       default: 
       datatype: string
       description: The name of the parameter used to pass the id token
+    - group: Consumer Mapping
+    - name: consumer_claim
+      required: false
+      default: 
+      datatype: array of string elements
+      description: The claim which is used for the consumer mapping
+    - name: consumer_by
+      required: false
+      default: [ "username", "custom_id" ] 
+      datatype: array of string elements
+      description: |
+        Consumer fields used for mapping:
+        - `id`: try to find Consumer by `id`
+        - `username`: try to find the matching Consumer by `username` 
+        - `custom_id`: try to find the matching Consumer by `custom_id`
+    - name: consumer_optional
+      required: false
+      default: false
+      datatype: boolean
+      description: Do not terminate the request, if consumer mapping fails?
     - group: Issuer Verification       
     - name: issuers_allowed
       required: false
@@ -590,13 +610,13 @@ params:
       default:
       datatype: array of string elements
       description: JWKS uris whose public keys are trusted (in addition to the keys found with the discovery)
-    - group: Authorization Code Flow Verifications
+    - group: Authorization Code Flow Verification
     - name: verify_nonce
       required: false
       default: true
       datatype: boolean
       description: Verify nonce on authorization code flow?
-    - group: Configuration Verifications
+    - group: Configuration Verification
     - name: verify_parameters
       required: false
       default: false
@@ -900,7 +920,7 @@ params:
       datatype: integer
       description: The maximum size of each cookie chunk in bytes
     - group: Authorization Cookie
-      description: used during authorization code flow for verifications and preserving settings
+      description: used during authorization code flow for verification and preserving the settings
     - name: authorization_cookie_name
       required: false
       default: '"authorization"'
