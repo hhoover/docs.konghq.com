@@ -31,13 +31,14 @@ description: |
   - [Google][google]
   - [IdentityServer4][identityserver4]
   - [Keycloak][keycloak]
-  - [Microsoft Azure Active Directory][azure], and [Active Directory Federation Services][adfs]
+  - [Microsoft Azure Active Directory][azure], [Active Directory Federation Services][adfs], and Live Connect
   - [Okta][okta]
   - [OneLogin][onelogin]
   - [OpenAM][openam]
   - [Paypal][paypal]
   - [PingFederate][pingfederate]
   - [Salesforce][salesforce]
+  - [WSO2][wso2]
   - [Yahoo!][yahoo]
 
   As long as your provider supports OpenID Connect, OAuth or JWT standards,
@@ -65,6 +66,7 @@ description: |
   [paypal]: https://developer.paypal.com/docs/log-in-with-paypal/integrate/
   [pingfederate]: https://documentation.pingidentity.com/pingfederate/
   [salesforce]: https://help.salesforce.com/articleView?id=sf.sso_provider_openid_connect.htm&type=5
+  [wso2]: https://is.docs.wso2.com/en/latest/learn/openid-connect/
   [yahoo]: https://developer.yahoo.com/oauth2/guide/openid_connect/
 
   Once applied, any user with a valid credential can access the Service.
@@ -508,6 +510,12 @@ params:
       default: false
       datatype: boolean
       description: Do not terminate the request, if consumer mapping fails?
+    - group: Credential Mapping
+    - name: credential_claim
+      required: false
+      default: [ "sub" ] 
+      datatype: array of string elements
+      description: The claim from which to derive a virtual credential (e.g. for rate-limiting plugin), in case the Consumer mapping is not used.
     - group: Issuer Verification       
     - name: issuers_allowed
       required: false
@@ -1087,6 +1095,10 @@ params:
       default: 
       datatype: integer
       description: The Redis cluster maximum redirects
+    - group: Login
+      description: what action the plugin takes after a successful login
+    - group: Logout
+      description: how to trigger logout with plugin
     - group: Miscellaneous      
     - name: refresh_tokens
       required: false
