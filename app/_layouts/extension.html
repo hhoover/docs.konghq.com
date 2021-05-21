@@ -58,7 +58,7 @@ breadcrumbs:
     {% endif %}
     {% for field in page.params.config %}
       {% if field.group %}
-      <tr><td colspan="2"><strong><br><br>{{ field.group | markdownify | strip_html }}</strong></td></tr>
+    <tr><td colspan="2"><strong><br><br>{{ field.group | markdownify | strip_html }} {% if field.description %}<br><small>{{ field.description | markdownify | strip_html }}</small>{% endif %}</strong></td></tr>
       <tr><th>Form Parameter</th><th>Description</th></tr>
       {% else %}
       <tr>
